@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>雫音 · 一起听</title>
+<meta name="description" content="雫音 - 纯直连网易云音乐客户端，一起听邀请页">
+<style>
+  :root{
+    --pink:#ff6a8a; --red:#d33a31; --blue:#8fd3ff; --ink:#1b2430;
+    --card:rgba(255,255,255,.86);
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  html,body{height:100%}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+    color:var(--ink); display:flex; align-items:center; justify-content:center; padding:22px;
+    background:
+      radial-gradient(900px 500px at 15% 0%, #dff3ff 0%, transparent 60%),
+      radial-gradient(700px 500px at 90% 100%, #ffe3ec 0%, transparent 60%),
+      linear-gradient(160deg,#f7fcff 0%,#fdf8ff 100%);
+    min-height:100dvmin;
+  }
+  .card{
+    width:100%; max-width:420px; background:var(--card); border:1px solid #ffffff;
+    border-radius:26px; padding:28px 22px 24px; text-align:center;
+    box-shadow:0 24px 60px -20px rgba(120,150,190,.45), 0 2px 10px rgba(180,200,230,.18);
+    backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+    animation:pop .5s cubic-bezier(.2,.9,.25,1.15) both;
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(14px) scale(.97)}to{opacity:1;transform:none}}
+  .avatar{
+    width:92px;height:92px;margin:0 auto 12px;border-radius:50%;
+    background:linear-gradient(145deg,#bfe9ff,#ffd6e3);
+    display:flex;align-items:center;justify-content:center;font-size:44px;
+    box-shadow:inset 0 0 0 3px #fff, 0 10px 24px -10px rgba(120,160,210,.6);
+  }
+  h1{margin:4px 0 6px;font-size:22px;letter-spacing:.5px}
+  .sub{margin:0 0 16px;font-size:13px;color:#6b7a8d;line-height:1.6}
+  .room{
+    display:none;margin:0 auto 16px;padding:12px 14px;border-radius:14px;
+    background:#f3f9ff;border:1px dashed #b9dcf5;font-size:13px;color:#3d5a75;
+  }
+  .room b{font-size:15px;color:#1b6fa8;letter-spacing:.5px}
+  .btn{
+    display:block;width:100%;padding:15px 16px;border-radius:16px;border:0;cursor:pointer;
+    font-size:16px;font-weight:600;text-decoration:none;transition:.18s transform,.18s box-shadow,.18s background;
+    -webkit-user-select:none;user-select:none;
+  }
+  .btn:active{transform:scale(.975)}
+  .primary{
+    color:#fff;background:linear-gradient(135deg,#ff7b95,#ff5f7e);
+    box-shadow:0 12px 26px -10px rgba(255,95,126,.75);
+    margin-bottom:10px;
+  }
+  .primary:hover{box-shadow:0 14px 30px -10px rgba(255,95,126,.85)}
+  .ghost{
+    color:#2b5b82;background:#eef7ff;border:1px solid #d7ecfb;
+  }
+  .ghost:hover{background:#e3f2ff}
+  .hint{margin:14px 0 0;font-size:12px;color:#8494a7;line-height:1.6;min-height:1.6em}
+  .hint.warn{color:#c45a5a}
+  .foot{margin-top:18px;font-size:11px;color:#a8b4c2}
+  .foot a{color:#7a9cbb;text-decoration:none}
+  @media (prefers-color-scheme: dark){
+    :root{--ink:#e9eef5;--card:rgba(28,32,40,.82)}
+    body{background:
+      radial-gradient(900px 500px at 15% 0%, #16324a 0%, transparent 60%),
+      radial-gradient(700px 500px at 90% 100%, #3a2030 0%, transparent 60%),
+      linear-gradient(160deg,#0e131a 0%,#141019 100%);}
+    .sub{color:#9fb0c4}
+    .room{background:#1b2733;border-color:#2f4a61;color:#a9c6dd}
+    .room b{color:#7fd0ff}
+    .ghost{color:#bfe2ff;background:#1d2b3a;border-color:#2b4156}
+    .hint{color:#93a4b8}
+    .foot{color:#6b7a8c}
+  }
+</style>
+</head>
+<body>
+  <main class="card">
+    <div class="avatar">🐱</div>
+    <h1 id="title">雫音 · 一起听</h1>
+    <p class="sub" id="sub">纯直连的网易云音乐客户端<br>和朋友听同一首歌喵~</p>
+
+    <div class="room" id="roomBox">房间号：<b id="roomIdText">-</b></div>
+
+    <a class="btn primary" id="openBtn" href="#">打开雫音，一起听</a>
+    <a class="btn ghost" id="downloadBtn"
+       href="https://github.com/ynlp0624/ShizukuMusic/releases/latest">还没有雫音？下载 APK</a>
+
+    <p class="hint" id="hint"></p>
+    <div class="foot">
+      雫音 ShizukuMusic ·
+      <a href="https://github.com/ynlp0624/ShizukuMusic/releases">全部版本</a>
+    </div>
+  </main>
+
+<script>
+(function () {
+  var q = new URLSearchParams(location.search);
+  var roomId = (q.get('roomId') || '').trim();
+  var inviterId = (q.get('inviterId') || '').trim();
+
+  var title = document.getElementById('title');
+  var sub = document.getElementById('sub');
+  var roomBox = document.getElementById('roomBox');
+  var roomText = document.getElementById('roomIdText');
+  var openBtn = document.getElementById('openBtn');
+  var hint = document.getElementById('hint');
+
+  var isAndroid = /Android/i.test(navigator.userAgent);
+
+  function deepLink() {
+    return 'shizuku://listentogether?roomId=' + encodeURIComponent(roomId) +
+           '&inviterId=' + encodeURIComponent(inviterId);
+  }
+
+  function intentLink() {
+    // Android Chrome 优先用 intent://，未安装时会落到浏览器下载页
+    return 'intent://listentogether?roomId=' + encodeURIComponent(roomId) +
+           '&inviterId=' + encodeURIComponent(inviterId) +
+           '#Intent;scheme=shizuku;package=com.shizuku.music;end';
+  }
+
+  if (roomId) {
+    title.textContent = '有人邀请你一起听歌';
+    sub.innerHTML = '接受邀请后，雫音会自动进房间<br>和对方同步播放同一首歌';
+    roomBox.style.display = 'block';
+    roomText.textContent = roomId;
+    openBtn.textContent = '接受邀请，打开雫音';
+    openBtn.setAttribute('href', isAndroid ? intentLink() : deepLink());
+
+    var timer = null;
+    openBtn.addEventListener('click', function () {
+      // 尝试唤起 App；2.5s 后如果页面还可见，提示可能没安装
+      if (timer) clearTimeout(timer);
+      timer = setTimeout(function () {
+        if (document.visibilityState === 'visible') {
+          hint.className = 'hint warn';
+          hint.textContent = '看起来没有打开喵…可能还没装雫音，点下面的按钮下载吧。';
+        }
+      }, 2500);
+    });
+
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'hidden' && timer) clearTimeout(timer);
+    });
+  } else {
+    openBtn.style.display = 'none';
+    sub.innerHTML = '在雫音里打开「一起听」建房后<br>把邀请链接发给朋友，就能一起听歌啦';
+    hint.textContent = '收到邀请链接的话，直接点链接进来就好喵~';
+  }
+})();
+</script>
+</body>
+</html>
